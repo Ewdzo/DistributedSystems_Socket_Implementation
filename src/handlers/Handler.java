@@ -1,3 +1,5 @@
+package handlers;
+
 public class Handler implements Runnable {
     @SuppressWarnings("deprecation")
     public void run()
