@@ -1,11 +1,23 @@
+package socket;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
-import handlers.ClientHandler;
+import socket.handlers.ClientHandler;
 
 public class Server {
 	static int port = 5000;
-	static String pathToFiles = "./src/files/";
+	private static String pathToFiles = "./src/files/";
+    private static final Map<Integer, String> options;
+
+    static {
+        options = new HashMap<>();
+        options.put(1, "List Available Files");
+        options.put(2, "Download File From Path");
+        options.put(3, "Upload File From Path");
+        options.put(4, "Close Connection");
+    }
 
 	public static void main(String[] args) {
 
@@ -30,6 +42,24 @@ public class Server {
 
 	}
 
+	public static String getOptionsString() {
+		String opt = "";
+
+		for (Integer key : options.keySet()) {
+			opt = opt.concat(key + " - " + options.get(key) + "\n");
+		};
+
+		return opt;
+	}
+
+	public static Map<Integer, String> getOptions() {
+		return Server.options;
+	}
+
+	public static String getPathToFiles() {
+		return pathToFiles;
+	}
+
 	// public static void receivingRequest(ServerSocket serverSocketObj) throws
 	// Exception {
 	// Socket serverSideSocket = serverSocketObj.accept();
@@ -40,18 +70,4 @@ public class Server {
 
 	// System.out.println(inputStream.readObject());
 	// }
-
-	private static void receiveFile(String fileName) throws Exception {
-		// int bytes = 0;
-		// FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-
-		// long size = dataInputStream.readLong();
-		// byte[] buffer = new byte[4 * 1024];
-		// while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)
-		// Math.min(buffer.length, size))) != -1) {
-		// fileOutputStream.write(buffer, 0, bytes);
-		// size -= bytes;
-		// }
-		// fileOutputStream.close();
-	}
 }

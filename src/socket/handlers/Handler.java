@@ -1,4 +1,4 @@
-package handlers;
+package socket.handlers;
 
 public class Handler implements Runnable {
     @SuppressWarnings("deprecation")
