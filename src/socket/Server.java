@@ -14,8 +14,7 @@ public class Server {
     static {
         options = new HashMap<>();
         options.put(1, "List Available Files");
-        options.put(2, "Download File From Path");
-        options.put(3, "Upload File From Path");
+        options.put(2, "Download File");
         options.put(4, "Close Connection");
     }
 
@@ -31,10 +30,6 @@ public class Server {
 				ClientHandler clientSock = new ClientHandler(clientSocket);
 				new Thread(clientSock).start();
 			}
-
-			// receiveFile(pathToFiles + "Bokuto2.png");
-
-			// dataOutputStream.close();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -60,14 +55,4 @@ public class Server {
 		return pathToFiles;
 	}
 
-	// public static void receivingRequest(ServerSocket serverSocketObj) throws
-	// Exception {
-	// Socket serverSideSocket = serverSocketObj.accept();
-	// ObjectOutputStream outputStream = new
-	// ObjectOutputStream(serverSideSocket.getOutputStream());
-	// ObjectInputStream inputStream = new
-	// ObjectInputStream(serverSideSocket.getInputStream());
-
-	// System.out.println(inputStream.readObject());
-	// }
 }
