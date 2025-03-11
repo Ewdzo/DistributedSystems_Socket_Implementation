@@ -1,11 +1,9 @@
 package socket.handlers;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -13,17 +11,16 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import socket.Server;
+import socket.exceptions.FileCheckException;
 
 public class ClientHandler implements Runnable {
     static Socket socket;
     static DataOutputStream dataOutputStream = null;
-    static DataInputStream dataInputStream = null;
 
     public ClientHandler(Socket s) {
         socket = s;
         try {
             dataOutputStream = new DataOutputStream(s.getOutputStream());
-            dataInputStream = new DataInputStream(s.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,7 +47,6 @@ public class ClientHandler implements Runnable {
             }
 
         } catch (SocketException e) {
-
             System.out.println(socket.getInetAddress().getHostAddress() + " connection terminated.");
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,30 +66,30 @@ public class ClientHandler implements Runnable {
     }
 
     public static void handleReq(String option, PrintWriter out) throws Exception {
-        Integer opt = Integer.parseInt(option);
-        String response = "Invalid Option";
+        String response = "ERROR - Invalid Option";
 
-        if (!Server.getOptions().containsKey(opt))
-            throw new Error("Invalid Option");
+        if (isPositiveInteger(option)) {
+            Integer opt = Integer.parseInt(option);
 
-        if (opt == 1) {
-            response = listFiles();
-        } else if (opt == 2) {
-            response = sendFile();
+            if (opt == 1) {
+                response = listFiles();
+            } else if (opt == 2) {
+                response = sendFile();
+            }
+            ;
         }
-        ;
 
         out.println(response);
     };
 
     public static String listFiles() {
         String[] pathnames;
-        String files = "Files: ";
+        String files = "\n\n == Files ==\n\n";
         File f = new File(Server.getPathToFiles());
         pathnames = f.list();
 
-        for (String pathname : pathnames) {
-            files += pathname + " ";
+        for (int i = 0; i < pathnames.length; i++) {
+            files += (i) + " - " + pathnames[i] + "\n";
         }
 
         return files;
@@ -102,66 +98,65 @@ public class ClientHandler implements Runnable {
     private static String sendFile() throws Exception {
         PrintWriter out = null;
         BufferedReader in = null;
+        FileInputStream fileInputStream = null;
+        File file = null;
+        File f = new File(Server.getPathToFiles());
+        String[] pathnames = f.list();
 
         try {
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            out.println(listFiles());
+            out.println("\nInsert File Index:");
+            String line = in.readLine();
+
+            if (!isPositiveInteger(line))
+                throw new FileCheckException("Invalid Index");
+
+            int fileIndex = Integer.parseInt(line);
+            int bytes = 0;
+            String path = pathnames[fileIndex];
+            out.println(path); // Send name of file so client know how to store.
+            out.flush();
+
             while (true) {
-                out.println("\nInsert Path to File:");
+                file = new File(Server.getPathToFiles() + path);
+                fileInputStream = new FileInputStream(file);
 
-                String line;
-                while ((line = in.readLine()) != null) {
-                    String path = line;
-                    int bytes = 0;
-                    File file = new File(Server.getPathToFiles() + path);
-                    FileInputStream fileInputStream = new FileInputStream(file);
-
-                    dataOutputStream.writeLong(file.length());
-                    byte[] buffer = new byte[4 * 1024];
-                    while ((bytes = fileInputStream.read(buffer)) != -1) {
-                        dataOutputStream.write(buffer, 0, bytes);
-                        dataOutputStream.flush();
-                    }
-                    fileInputStream.close();
-                    
-                    
-                    if (!in.ready())
-                    break;
-
-                    return "Sucessfully downloaded " + path;
+                dataOutputStream.writeLong(file.length());
+                byte[] buffer = new byte[4 * 1024];
+                while ((bytes = fileInputStream.read(buffer)) != -1) {
+                    dataOutputStream.write(buffer, 0, bytes);
+                    dataOutputStream.flush();
                 }
+
+                return "Sucessfully downloaded " + pathnames[fileIndex];
             }
 
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new FileCheckException("File Not Identified");
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Exception is Caught");
+
         } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-                if (in != null) {
-                    in.close();
-                    socket.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            
+            if (fileInputStream != null)
+                fileInputStream.close();
+            dataOutputStream.close();
         }
+        ;
+
         return "Failed";
     }
 
-    private static void receiveFile(String fileName) throws Exception {
-        int bytes = 0;
-        FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-
-        long size = dataInputStream.readLong();
-        byte[] buffer = new byte[4 * 1024];
-        while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
-            fileOutputStream.write(buffer, 0, bytes);
-            size -= bytes;
+    public static boolean isPositiveInteger(String input) {
+        try {
+            int value = Integer.parseInt(input);
+            if (value < 0)
+                throw new NumberFormatException();
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
-        fileOutputStream.close();
     }
 };
