@@ -1,21 +1,21 @@
-package socket;
+package socket.server;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
-import socket.handlers.ClientHandler;
+import socket.server.handlers.ClientHandler;
 
 public class Server {
 	static int port = 5000;
 	private static String pathToFiles = "./src/files/";
-    private static final Map<Integer, String> options;
+    private static final Map<String, String> options;
 
     static {
         options = new HashMap<>();
-        options.put(1, "List Available Files");
-        options.put(2, "Download File");
-        options.put(4, "Close Connection");
+        options.put("1", "List Available Files");
+        options.put("2", "Download File");
+        options.put("0", "Close Connection");
     }
 
 	public static void main(String[] args) {
@@ -25,7 +25,7 @@ public class Server {
 
 			while (true) {
 				Socket clientSocket = serverSocket.accept();
-				System.out.println(clientSocket.getInetAddress().getHostAddress() + " connected.");
+				System.out.println(clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort() + " connected.");
 
 				ClientHandler clientSock = new ClientHandler(clientSocket);
 				new Thread(clientSock).start();
@@ -37,17 +37,19 @@ public class Server {
 
 	}
 
-	public static String getOptionsString() {
-		String opt = "";
+	public static String getMenu() {
+		String opt = "== File Manager ==\n\n";
 
-		for (Integer key : options.keySet()) {
+		for (String key : options.keySet()) {
 			opt = opt.concat(key + " - " + options.get(key) + "\n");
 		};
 
+		opt = opt.concat("Option:");
+		
 		return opt;
-	}
+	};
 
-	public static Map<Integer, String> getOptions() {
+	public static Map<String, String> getOptions() {
 		return Server.options;
 	}
 
