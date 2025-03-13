@@ -35,6 +35,7 @@ public class ServerService {
 
     public void sendInvalid() {
         sendResponse("400: Bad Request - Invalid Input");
+        close();
     }
 
     public void sendResponse(String res) {
@@ -83,6 +84,7 @@ public class ServerService {
             sendResponse("File Path: " + path); // Send name of file so client know how to store.
         } catch (ArrayIndexOutOfBoundsException e) {
             sendResponse("404: Not Found - Index Not Found");
+            close();
         }
     }
     
