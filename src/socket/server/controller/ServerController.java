@@ -8,7 +8,6 @@ import socket.server.service.ServerService;
 public class ServerController {
     Socket socket;
     ServerService service;
-    String lastSent;
     
     public ServerController(Socket s) {
         socket = s;
@@ -16,7 +15,6 @@ public class ServerController {
     };
 
     public void handleRes(String res) {
-        lastSent = res;
         if(res.contains("Option: ")) handleOption(res.replace("Option: ", ""));
         else if(res.contains("File Index: ")) service.sendFilePath(res.replace("File Index: ", ""));
         else if(res.contains("File Path: ")) service.sendFile(res.replace("File Path: ", ""));
@@ -31,8 +29,4 @@ public class ServerController {
         else if(res.equals("1")) service.sendFilesList();
         else if(res.equals("2")) service.getFileIndex();
     };
-
-    public String getLastSent() {
-        return lastSent;
-    }
 }
