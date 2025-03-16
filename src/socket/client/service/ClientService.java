@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import socket.client.Client;
-import socket.client.handlers.DownloadHandler;
 import socket.helper.Input;
 
 public class ClientService {
@@ -60,11 +59,9 @@ public class ClientService {
                 return;
             }
 
-            String ip = Client.getIp();
-            int port = Client.getPort();
-            DownloadHandler downloadSock = new DownloadHandler(ip, port, fileName);
-            new Thread(downloadSock).start();
-
+            sendResponse("File Path: " + fileName);
+            downloadFile(Client.getPathToFiles() + fileName);
+            close();
         } catch (Exception e) {
             sendResponse("500: Internal Server Error - Failure Receiving File");
         }
