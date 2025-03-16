@@ -4,7 +4,7 @@ import socket.client.handlers.ServerHandler;
 
 public class Client {
     private static int port = 5000;
-    private static String ip = "localhost";
+    private static String ip = "192.168.100.202";
     private static String pathToDownloads = "./src/downloads/";
 
     public static void main(String[] args) {
