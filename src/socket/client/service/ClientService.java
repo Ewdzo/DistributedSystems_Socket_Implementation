@@ -12,8 +12,8 @@ import socket.client.handlers.DownloadHandler;
 import socket.helper.Input;
 
 public class ClientService {
-    private static Socket socket;
-    private static PrintWriter out;
+    private Socket socket;
+    private PrintWriter out;
 
     public ClientService(Socket s) {
         try {
