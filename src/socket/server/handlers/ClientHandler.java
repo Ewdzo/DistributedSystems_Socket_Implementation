@@ -9,7 +9,7 @@ import java.net.SocketException;
 import socket.server.controller.ServerController;
 
 public class ClientHandler implements Runnable {
-    static Socket socket;
+    Socket socket;
     ServerController controller;
     BufferedReader in;
     
@@ -28,7 +28,7 @@ public class ClientHandler implements Runnable {
             while (true) {
                 String line;
                 while ((line = in.readLine()) != null) {
-                    System.out.printf(this.hashCode() + " - " + socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + " sent: %s\n", line);
+                    System.out.printf(socket.getInetAddress().getHostAddress() + ":" + socket.getPort() + " sent: %s\n", line);
                     controller.handleRes(line);
 
                     if (!in.ready())

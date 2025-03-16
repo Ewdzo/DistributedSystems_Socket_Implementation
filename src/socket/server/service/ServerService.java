@@ -10,8 +10,8 @@ import java.net.Socket;
 import socket.server.Server;
 
 public class ServerService {
-    static Socket socket;
-    static PrintWriter out;
+    Socket socket;
+    PrintWriter out;
 
     public ServerService(Socket s) {
         socket = s;
